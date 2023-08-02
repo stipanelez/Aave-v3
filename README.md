@@ -5,8 +5,11 @@ Deposit, Borrow and Repay via Aave v3.
 ## Fuctions
 
 1.Swap some ETH for WETH
+
 2.Deposit WETH into Aave - lendingpool
+
 3.Borrow some asset against the ETH collateral
+
 4.Repay everything back
 
 # Getting Started
@@ -26,8 +29,8 @@ Deposit, Borrow and Repay via Aave v3.
 ## Quickstart
 
 ```
-git clone https://https://github.com/stipanelez/club-nft
-cd club-nft
+git clone https://github.com/stipanelez/Aave-v3.git
+cd Aave-v3
 yarn
 ```
 
