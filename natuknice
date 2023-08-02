@@ -1,0 +1,106 @@
+Odi nemamo svoj ugovor vec interakciju s protokolima
+AAVE protokol sve tretira kao erc20 token
+
+WETH interface je jako slican ERC20 interface samo sta ima dodatno jos funkcije deposit and withdraw
+WETH je ethereum u erc20 token contractu
+
+Da bi dobio WETH otisa san na etherscan upisat Wrapped ether token -> contract -> deposit
+
+adresa token contract wrapped eth : 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
+zasto odma koristimo mainet adresu i hardkodiramo je ? zbog forkanja
+
+forking- kopiramo postojeci blockchain u lokal computer--sve sta radimo lokalno nema efekta na mainet
+-forkanje ne kopira cili blockchain,nego cilo vrime imamo referencu na interfejs(API) od ethereum noda i vraca nam contract
+
+Lending Pool address Provider: 0x2f39d218133AFaB8F2B819B1066c7E434Ad94E9e
+
+safe transfer from is going to pull out money from our wallet
+to give ability for pulling money from our contract we need to approve aave contract
+
+liquidation threshold (npr. 80%) -if you have a 1 eth as collateral and 0.81 eth borrowed you will be liquidated
+
+TypeError: Cannot read properties of undefined (reading 'parseEther') --- rijesija sa yarn add --dev ethers@5.7.2
+dhat
+6 yarn hardhat
+7 yarn add --dev @nomiclabs/hardhat-ethers@npm:hardhat-deploy-ethers ethers @nomiclabs/hardhat-etherscan @nomiclabs/hardhat-waffle chai ethereum-waffle hardhat hardhat-contract-sizer hardhat-deploy hardhat-ga...
+8 yarn add --dev @chainlink/contracts
+9 yarn add --dev @openzeppelin/contracts
+10 yarn add ethers@5.7.2
+11 yarn add @nomiclabs/hardhat-waffle
+12 yarn hardhat compile
+13 yarn hardhat compile
+14 yarn hardhat compile
+15 yarn add @aave/core-v3
+16 yarn add ethwrapper
+17 yarn hardhat compile
+18 yarn hardhat compile
+19 yarn add --dev @nomiclabs/hardhat-ethers
+20 yarn hardhat compile
+21 yarn hardhat compile
+22 yarn hardhat run scripts/aaveBorrow.js
+
+Error: invalid signer (argument="signer", value="0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", code=INVALID_ARGUMENT, version=contracts/5.7.0)
+-dodao const signer = await ethers.getSigner(deployer)
+
+we have :
+yarn run v1.22.19
+$ C:\Users\stipe\Documents\workspace\EthereumWorkspace\prod\hardhat-defi\node_modules\.bin\hardhat run scripts/aaveBorrow.js
+Got 20000000000000000 WETH  
+0.02
+
+PooladdressProvider ce nam rec di se pool nalazi pool
+
+izbrisali smo iz contracta IPoolAddressesProvider jer on vec ima u aave contracts taj
+$ C:\Users\stipe\Documents\workspace\EthereumWorkspace\prod\hardhat-defi\node_modules\.bin\hardhat run scripts/aaveBorrow.js
+Got 20000000000000000 WETH
+LendingPool Address 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2 -- ovo je adresa na mainetu
+
+LendingPool Address 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2
+Approved!
+Depositing...
+Deposited...
+You have 3765660000 worth of ETH deposited.
+You have 0 worth of ETH borrowed.
+You can borrow 3031356300 worth of ETH.
+
+error:
+l component exceeds decimals [ See: https://links.ethers.org/v5-errors-NUMERIC_FAULT ] (fault="underflow", operation="parseFixed", code=NUMERIC_FAULT, version=bignumber/5.7.0)
+stavia sam .toFixed(18) funkciju da zaokruzim na 18 decimala
+
+Error: VM Exception while processing transaction: reverted with reason string '31'
+ovaj error sam dobija jer sam pokusa Borrow DAI in stable mode,samo san u funkciji triba prominit s 1 na 2:
+
+    async function borrowDai(daiAddress, lendingPool, amountDaiToBorrowWei, account) {
+        const borrowTx = await lendingPool.borrow(
+            daiAddress,
+            amountDaiToBorrowWei,
+            1, //1 is Stable,2 is Variable for interestRateMode
+            0,
+            account,
+        )
+
+$ C:\Users\stipe\Documents\workspace\EthereumWorkspace\prod\hardhat-defi\node_modules\.bin\hardhat run scripts/aaveBorrow.js
+Got 20000000000000000 WETH
+LendingPool Address 0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2
+Approved!
+Depositing...
+Deposited...
+You have 3654763360 worth of ETH deposited.
+You have 0 worth of ETH borrowed.
+You can borrow 2942084505 worth of ETH.
+The DAI/ETH price is 544403114856965
+You can borrow 0.0000051340269801438325 DAI
+You've borrowed!
+You have 3654763400 worth of ETH deposited.
+You have 513 worth of ETH borrowed.
+You can borrow 2942084024 worth of ETH.
+Approved!
+Repaid!
+You have 3654763500 worth of ETH deposited.
+You have 0 worth of ETH borrowed.
+You can borrow 2942084618 worth of ETH.
+Done in 89.61s.
+
+-When we deposite our collateral we get back "A" token or interestearing token,this token keep track of how much collateral or
+in my case how much WETH token have deposited in AAVE protocol
+-When we want to withdraw back,we burn these "A" tokens
